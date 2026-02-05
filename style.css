@@ -7,6 +7,10 @@ body {
     font-family: "Plus Jakarta Sans", sans-serif;
 }
 
+[v-cloak] {
+  display: none;
+}
+
 #page-title {
     font-size: 3rem;
     font-weight: normal;
