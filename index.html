@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="@AllRox">
+    <meta name="keywords" content="VueJS, Carteirinha, Reativo, Estácio, Front-End, Desenvolvimento Web">
+    <meta name="description" content="Exemplo de carteirinha reativa utilizando VueJS para atualização em tempo real dos dados.">
+    <meta name="location" content="Rio de Janeiro, Brasil">
+    <title>Exemplo Carteirinha Reativa</title>
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="container">
+        <h1 id="page-title">ID Card Reativo com VueJS</h1>
+        <div id="wrapper">
+            <div id="central">
+                <div id="formulario">
+                    
+                    <label for="nome">Nome:</label>
+                    <input v-model="nome" type="text" placeholder="Alexandre 'AllRox' Rocha">
+                    
+                    <label for="matricula">Matrícula:</label>
+                    <input 
+                    v-model="matricula" 
+                    type="text"
+                    @input="applyMask"
+                    maxlength="14"
+                    placeholder="2020 0931 8967"
+                    >
+
+                    <label for="curso">Curso:</label>
+                    <input v-model="curso" type="text" placeholder="Engenharia de Software">
+                    
+                    <label for="fotoAluno">Foto do Aluno:</label>
+                    <input type="file" id="fotoAluno" accept="image/*" @change="onFotoChange">
+                    
+                    <button @click="downloadPreview">Baixar prévia</button>
+                    
+                </div>
+                
+                <div id="previa">
+                    <div id="cartao">
+                        <div id="dados-cartao">
+                            
+                            <div id="logo-estacio">
+                                <Img src="./img/estacio.png"></Img>
+                            </div>
+
+                            <div id="conteudo">
+                                <span class="label-cartao">Nome:</span>
+                                <span v-model="nome" class="dado-cartao" v-text="nome"></span>
+                                
+                                <span class="label-cartao">Matrícula:</span>
+                                <span v-model="matricula" class="dado-cartao" v-text="matricula"></span>
+                                
+                                <span class="label-cartao">Curso:</span>
+                                <span class="dado-cartao" v-text="curso"></span>
+                            </div>                                                        
+                            
+                        </div>
+                        <div id="foto">
+                            <!-- <img v-if="fotoUrl" :src="fotoUrl" alt="Foto do Aluno"/> -->
+                             <div v-if="fotoUrl" :style="{ 
+                                width: '100%', 
+                                height: '100%', 
+                                backgroundImage: 'url(' + fotoUrl + ')', 
+                                backgroundSize: 'cover', 
+                                backgroundPosition: 'center',
+                                borderRadius: '8px'
+                             }"></div>
+                            <span v-else>Foto</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p style="color: #ffffff; font-size: 0.8rem; margin-bottom: 40px;">Obrigado por conferir este estudo!</p>
+    </div>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        Vue.createApp({
+            data() {
+                return {
+                    nome: '',
+                    matricula: '',
+                    curso: '',
+                    fotoUrl: null,
+                }
+            },
+            methods: {
+                onFotoChange(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.fotoUrl = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                },
+                applyMask(event){
+                    let valor = event.target.value.replace(/\D/g, '');
+                    
+                    if (valor.length > 4) {
+                        valor = valor.slice(0,4) + '.' + valor.slice(4,8) + '.' + valor.slice(8,12);
+                    }
+                    
+                    this.matricula = valor;
+                },
+                downloadPreview() {
+                    const cartao = document.getElementById('cartao');
+                    
+                    html2canvas(cartao, {
+                        scale: 3,      
+                        backgroundColor: null
+                    }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = 'carteirinha.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    });
+                }
+            }
+        }).mount('#central');
+    </script>
+</body>
+</html>
